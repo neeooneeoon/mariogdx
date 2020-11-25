@@ -9,8 +9,8 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.neeooneeoon.supermariobros.Screens.PlayScreen;
 
 public class SuperMarioBros extends Game {
-	public static final int V_WIDTH = 480;
-	public static final int V_HEIGHT = 800;
+	public static final int V_WIDTH = 624;
+	public static final int V_HEIGHT = 1260;
 	public SpriteBatch batch;
 
 	@Override
