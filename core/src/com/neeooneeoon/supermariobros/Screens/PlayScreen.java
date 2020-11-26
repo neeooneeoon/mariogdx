@@ -29,13 +29,13 @@ public class PlayScreen implements Screen {
     public PlayScreen(SuperMarioBros game) {
         this.game = game;
         gameCam = new OrthographicCamera();
-        gamePort = new FitViewport(SuperMarioBros.V_HEIGHT,SuperMarioBros.V_WIDTH, gameCam);
+        gamePort = new FitViewport(SuperMarioBros.V_WIDTH,SuperMarioBros.V_HEIGHT, gameCam);
         hud = new HUD(game.batch);
 
         mapLoader = new TmxMapLoader();
         map = mapLoader.load("level1.tmx");
         renderer = new OrthogonalTiledMapRenderer(map);
-        gameCam.position.set(gamePort.getScreenWidth() / 2, gamePort.getScreenHeight() /2, 0);
+        gameCam.position.set(gamePort.getWorldWidth() /2, gamePort.getWorldHeight() /2, 0);
 
     }
 
@@ -61,9 +61,9 @@ public class PlayScreen implements Screen {
         update(delta);
         Gdx.gl.glClearColor(0,0,0,1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        renderer.render();
         game.batch.setProjectionMatrix(hud.stage.getCamera().combined);
         hud.stage.draw();
-        renderer.render();
     }
 
     @Override
