@@ -4,9 +4,11 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
@@ -23,9 +25,13 @@ import com.neeooneeoon.supermariobros.Scenes.HUD;
 import com.neeooneeoon.supermariobros.Sprites.Mario;
 import com.neeooneeoon.supermariobros.SuperMarioBros;
 import com.neeooneeoon.supermariobros.Tools.B2WorldCreator;
+import com.neeooneeoon.supermariobros.Tools.WorldContactListener;
 
 public class PlayScreen implements Screen {
     private final SuperMarioBros game;
+
+    private TextureAtlas atlas;
+
     private final OrthographicCamera gameCam;
     private final Viewport gamePort;
     private final HUD hud;
@@ -39,7 +45,11 @@ public class PlayScreen implements Screen {
 
     private Mario player;
 
+    private Music music;
+
     public PlayScreen(SuperMarioBros game) {
+        atlas = new TextureAtlas("Mario_and_Enemies.pack");
+
         this.game = game;
         gameCam = new OrthographicCamera();
         gamePort = new FitViewport(SuperMarioBros.V_WIDTH / SuperMarioBros.PPM, SuperMarioBros.V_HEIGHT / SuperMarioBros.PPM, gameCam);
@@ -55,7 +65,17 @@ public class PlayScreen implements Screen {
         b2dr = new Box2DDebugRenderer();
         new B2WorldCreator(world, map);
 
-        player = new Mario(world);
+        player = new Mario(world, this);
+
+        world.setContactListener(new WorldContactListener());
+
+        music = SuperMarioBros.manager.get("audio/music/mario_music.ogg", Music.class);
+        music.setLooping(true);
+        music.play();
+    }
+
+    public TextureAtlas getAtlas() {
+        return atlas;
     }
 
     @Override
@@ -73,10 +93,21 @@ public class PlayScreen implements Screen {
     }
 
     public void update(float dt) {
+        //handle user input first
         handleInput(dt);
+
+        //takes 1 step in the physics simulation
         world.step(1 / 60f, 6, 2);
+
+        player.update(dt);
+        hud.update(dt);
+
+        //attact gamecam to players.x
         gameCam.position.x = player.b2body.getPosition().x;
+
+        //update gamecam
         gameCam.update();
+        //draw what gamecam can see
         renderer.setView(gameCam);
     }
 
@@ -87,7 +118,12 @@ public class PlayScreen implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         renderer.render();
         b2dr.render(world, gameCam.combined);
-        game.batch.setProjectionMatrix(hud.stage.getCamera().combined);
+
+        game.batch.setProjectionMatrix(gameCam.combined);
+        game.batch.begin();
+        player.draw(game.batch);
+        game.batch.end();
+
         hud.stage.draw();
     }
 
