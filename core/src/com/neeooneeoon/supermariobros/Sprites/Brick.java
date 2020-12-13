@@ -12,7 +12,7 @@ public class Brick extends InteractiveTileObject{
     @Override
     public void onHeadHit() {
         Gdx.app.log("Brick", "Collision");
-        setCategoryFilter(SuperMarioBros.DESTRYED_BIT);
+        setCategoryFilter(SuperMarioBros.DESTROYED_BIT);
         getCell().setTile(null);
         HUD.addScore(200);
         SuperMarioBros.manager.get("audio/sounds/breakblock.wav", Sound.class).play();
